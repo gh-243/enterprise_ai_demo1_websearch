@@ -39,12 +39,6 @@ COPY static/ ./static/
 # Create logs directory
 RUN mkdir -p logs
 
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
-
-USER appuser
-
 # Expose port
 EXPOSE 8000
 
