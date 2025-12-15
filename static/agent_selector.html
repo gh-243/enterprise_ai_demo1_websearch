@@ -1,0 +1,186 @@
+<!-- NEW MULTI-AGENT FEATURE -->
+<!-- 
+Agent Selector Component
+
+Add this HTML snippet to your chat interface to enable agent selection.
+Insert it before the chat input container in index.html.
+-->
+
+<div class="agent-selector-container" style="padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+    <div class="agent-selector-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <i class="fas fa-users" style="color: #667eea;"></i>
+        <span style="font-weight: 600; color: #334155;">Select Agent:</span>
+    </div>
+    
+    <div class="agent-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <!-- Standard Chat (default) -->
+        <button class="agent-btn active" data-agent="chat" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">💬</span>
+            <span>Standard Chat</span>
+        </button>
+        
+        <!-- Research Agent -->
+        <button class="agent-btn" data-agent="research" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">🔍</span>
+            <span>Research</span>
+        </button>
+        
+        <!-- Fact-Check Agent -->
+        <button class="agent-btn" data-agent="fact_check" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">✅</span>
+            <span>Fact-Check</span>
+        </button>
+        
+        <!-- Business Analyst Agent -->
+        <button class="agent-btn" data-agent="business_analyst" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">📊</span>
+            <span>Business</span>
+        </button>
+        
+        <!-- Writing Agent -->
+        <button class="agent-btn" data-agent="writing" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">✍️</span>
+            <span>Writing</span>
+        </button>
+        
+        <!-- Pipeline Mode -->
+        <button class="agent-btn" data-agent="pipeline" style="
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        ">
+            <span style="font-size: 16px;">🔄</span>
+            <span>Full Pipeline</span>
+        </button>
+    </div>
+    
+    <div class="agent-description" id="agentDescription" style="
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 10px;
+        font-size: 12px;
+        color: #64748b;
+    ">
+        Standard chat with web search capabilities
+    </div>
+</div>
+
+<style>
+    /* Agent selector styles */
+    .agent-btn:hover {
+        border-color: #667eea !important;
+        background: #f1f5f9 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+    
+    .agent-btn.active {
+        border-color: #667eea !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+    }
+    
+    .agent-btn.active span:last-child {
+        color: white !important;
+    }
+</style>
+
+<script>
+    // NEW MULTI-AGENT FEATURE - Agent Selection Logic
+    
+    const agentDescriptions = {
+        chat: "Standard chat with web search capabilities",
+        research: "🔍 Research Agent - Conducts thorough research and synthesizes findings",
+        fact_check: "✅ Fact-Check Agent - Verifies claims with confidence scores",
+        business_analyst: "📊 Business Analyst - Provides strategic analysis using frameworks",
+        writing: "✍️ Writing Agent - Transforms content into polished documents",
+        pipeline: "🔄 Full Pipeline - Research → Fact-Check → Business Analysis → Writing"
+    };
+    
+    let selectedAgent = 'chat';
+    
+    // Initialize agent buttons
+    document.querySelectorAll('.agent-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Update selected agent
+            selectedAgent = this.dataset.agent;
+            
+            // Update description
+            document.getElementById('agentDescription').textContent = agentDescriptions[selectedAgent];
+        });
+    });
+    
+    // Export for use in chat logic
+    window.getSelectedAgent = function() {
+        return selectedAgent;
+    };
+</script>

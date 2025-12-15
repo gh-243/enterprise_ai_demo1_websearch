@@ -34,3 +34,13 @@ tomlkit==0.13.3
 tqdm==4.67.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
+
+# STUDENT ASSISTANT FEATURE - Document processing dependencies
+aiofiles==24.1.0
+python-multipart==0.0.9
+PyPDF2==3.0.1
+python-docx==1.1.2
+ebooklib==0.18
+chromadb==0.5.23
+sentence-transformers==3.1.1
+pydub==0.25.1

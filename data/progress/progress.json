@@ -1,0 +1,118 @@
+{
+  "student_id": "default",
+  "documents_uploaded": 0,
+  "documents_read": [],
+  "pages_read": 0,
+  "quizzes_taken": [
+    {
+      "quiz_id": "quiz_1762400139.076831",
+      "topic": "Unknown",
+      "score": 50.0,
+      "total_questions": 2,
+      "correct_answers": 1,
+      "completed_at": "2025-11-05T22:35:39.076917",
+      "time_spent_seconds": 45
+    },
+    {
+      "quiz_id": "quiz_1762455911.600756",
+      "topic": "algebra",
+      "score": 100.0,
+      "total_questions": 1,
+      "correct_answers": 1,
+      "completed_at": "2025-11-06T14:05:11.601495",
+      "time_spent_seconds": 45
+    },
+    {
+      "quiz_id": "quiz_1762456049.405945",
+      "topic": "Unknown",
+      "score": 100.0,
+      "total_questions": 2,
+      "correct_answers": 2,
+      "completed_at": "2025-11-06T14:07:29.406107",
+      "time_spent_seconds": 30
+    },
+    {
+      "quiz_id": "quiz_1762456058.459662",
+      "topic": "Unknown",
+      "score": 100.0,
+      "total_questions": 2,
+      "correct_answers": 2,
+      "completed_at": "2025-11-06T14:07:38.459721",
+      "time_spent_seconds": 30
+    },
+    {
+      "quiz_id": "quiz_1762456194.111252",
+      "topic": "math",
+      "score": 100.0,
+      "total_questions": 1,
+      "correct_answers": 1,
+      "completed_at": "2025-11-06T14:09:54.111444",
+      "time_spent_seconds": 14
+    },
+    {
+      "quiz_id": "quiz_1762456388.052932",
+      "topic": "e-commerce",
+      "score": 100.0,
+      "total_questions": 1,
+      "correct_answers": 1,
+      "completed_at": "2025-11-06T14:13:08.053022",
+      "time_spent_seconds": 9
+    },
+    {
+      "quiz_id": "quiz_1762544206.971854",
+      "topic": "python",
+      "score": 100.0,
+      "total_questions": 1,
+      "correct_answers": 1,
+      "completed_at": "2025-11-07T14:36:46.972028",
+      "time_spent_seconds": 17
+    },
+    {
+      "quiz_id": "quiz_1762568159.287125",
+      "topic": "math",
+      "score": 100.0,
+      "total_questions": 1,
+      "correct_answers": 1,
+      "completed_at": "2025-11-07T21:15:59.287434",
+      "time_spent_seconds": 12
+    }
+  ],
+  "total_quiz_score": 750.0,
+  "quiz_attempts": 8,
+  "study_sessions": [],
+  "total_study_time_seconds": 0,
+  "podcasts_generated": 0,
+  "podcasts_listened": [],
+  "notes_created": 30,
+  "achievements": [
+    {
+      "achievement_id": "first_quiz",
+      "title": "Quiz Novice",
+      "description": "Completed your first quiz",
+      "icon": "\ud83d\udcdd",
+      "earned_at": "2025-11-05T22:35:39.076976",
+      "category": "quizzes"
+    },
+    {
+      "achievement_id": "perfect_score",
+      "title": "Perfect Score",
+      "description": "Got 100% on a quiz",
+      "icon": "\u2b50",
+      "earned_at": "2025-11-06T14:05:11.602962",
+      "category": "quizzes"
+    },
+    {
+      "achievement_id": "note_taker",
+      "title": "Note Taker",
+      "description": "Created 10 notes",
+      "icon": "\ud83d\udcd4",
+      "earned_at": "2025-11-06T14:16:14.202776",
+      "category": "notes"
+    }
+  ],
+  "current_streak_days": 3,
+  "longest_streak_days": 3,
+  "last_activity_date": "2025-11-07",
+  "created_at": "2025-11-05T22:28:48.043414",
+  "updated_at": "2025-11-07T21:15:59.288595"
+}

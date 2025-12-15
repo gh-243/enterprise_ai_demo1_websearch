@@ -16,6 +16,10 @@ import os
 
 from src.api.chat_router import chat_router
 from src.api.cost_router import cost_router
+from src.api.agent_router import agent_router  # NEW MULTI-AGENT FEATURE
+from src.api.document_router import document_router  # STUDENT ASSISTANT FEATURE
+from src.api.podcast_router import router as podcast_router  # STUDENT ASSISTANT FEATURE - PHASE 5
+from src.api.learning_router import router as learning_router  # STUDENT ASSISTANT FEATURE - PHASE 8
 from src.infra.middleware import CostTrackingMiddleware
 from src.logging_config import setup_logging
 
@@ -130,6 +134,10 @@ if os.path.exists(static_dir):
 # Include routers
 app.include_router(chat_router)
 app.include_router(cost_router)
+app.include_router(agent_router)  # NEW MULTI-AGENT FEATURE
+app.include_router(document_router)  # STUDENT ASSISTANT FEATURE
+app.include_router(podcast_router)  # STUDENT ASSISTANT FEATURE - PHASE 5
+app.include_router(learning_router)  # STUDENT ASSISTANT FEATURE - PHASE 8
 
 
 @app.get("/health")
@@ -151,6 +159,19 @@ async def root():
             "docs": "/docs",
             "health": "/health",
             "note": "UI not found - check static files"
+        }
+
+
+@app.get("/student")
+async def student_ui():
+    """Serve the Student Assistant UI."""
+    static_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static", "student.html")
+    if os.path.exists(static_path):
+        return FileResponse(static_path)
+    else:
+        return {
+            "error": "Student UI not found",
+            "note": "Check static/student.html file"
         }
 
 

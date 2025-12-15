@@ -141,6 +141,86 @@
             border-bottom-left-radius: 8px;
         }
 
+        /* NEW MULTI-AGENT FEATURE - Agent response formatting */
+        .message.bot .message-content p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .message.bot .message-content ul {
+            margin: 10px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .message.bot .message-content li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .message.bot .message-content li:before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .agent-section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .agent-link {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid #667eea;
+            transition: all 0.2s;
+        }
+
+        .agent-link:hover {
+            color: #764ba2;
+            border-bottom-color: #764ba2;
+        }
+
+        .verdict-badge {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 15px;
+            display: inline-block;
+        }
+
+        .verdict-icon {
+            font-size: 20px;
+            margin-right: 5px;
+        }
+
+        .confidence-score {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .confidence-score strong {
+            color: #3b82f6;
+            font-size: 16px;
+        }
+
         .message-meta {
             font-size: 11px;
             opacity: 0.7;
@@ -297,6 +377,68 @@
             backdrop-filter: blur(10px);
         }
 
+        /* NEW MULTI-AGENT FEATURE - Agent selector styles */
+        .agent-selector-container {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .agent-selector-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .agent-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .agent-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            color: #334155;
+        }
+
+        .agent-btn:hover {
+            border-color: #667eea;
+            background: #f1f5f9;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .agent-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .agent-btn .emoji {
+            font-size: 16px;
+        }
+
+        .agent-description {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             body {
@@ -350,6 +492,56 @@
             </div>
         </div>
 
+        <!-- NEW MULTI-AGENT FEATURE - Agent Selector -->
+        <div class="agent-selector-container">
+            <div class="agent-selector-header">
+                <i class="fas fa-users" style="color: #667eea;"></i>
+                <span>Select Agent:</span>
+            </div>
+            
+            <div class="agent-buttons">
+                <!-- Standard Chat (default) -->
+                <button class="agent-btn active" data-agent="chat">
+                    <span class="emoji">💬</span>
+                    <span>Standard Chat</span>
+                </button>
+                
+                <!-- Research Agent -->
+                <button class="agent-btn" data-agent="research">
+                    <span class="emoji">🔍</span>
+                    <span>Research</span>
+                </button>
+                
+                <!-- Fact-Check Agent -->
+                <button class="agent-btn" data-agent="fact_check">
+                    <span class="emoji">✅</span>
+                    <span>Fact-Check</span>
+                </button>
+                
+                <!-- Business Analyst Agent -->
+                <button class="agent-btn" data-agent="business_analyst">
+                    <span class="emoji">📊</span>
+                    <span>Business</span>
+                </button>
+                
+                <!-- Writing Agent -->
+                <button class="agent-btn" data-agent="writing">
+                    <span class="emoji">✍️</span>
+                    <span>Writing</span>
+                </button>
+                
+                <!-- Pipeline Mode -->
+                <button class="agent-btn" data-agent="pipeline">
+                    <span class="emoji">🔄</span>
+                    <span>Full Pipeline</span>
+                </button>
+            </div>
+            
+            <div class="agent-description" id="agentDescription">
+                Standard chat with web search capabilities
+            </div>
+        </div>
+
         <div class="chat-input-container">
             <div class="error-message" id="errorMessage"></div>
             
@@ -397,7 +589,19 @@
                 this.isCreativeMode = false;
                 this.totalCost = 0;
                 
+                // NEW MULTI-AGENT FEATURE
+                this.selectedAgent = 'chat';
+                this.agentDescriptions = {
+                    chat: "Standard chat with web search capabilities",
+                    research: "🔍 Research Agent - Conducts thorough research and synthesizes findings",
+                    fact_check: "✅ Fact-Check Agent - Verifies claims with confidence scores",
+                    business_analyst: "📊 Business Analyst - Provides strategic analysis using frameworks",
+                    writing: "✍️ Writing Agent - Transforms content into polished documents",
+                    pipeline: "🔄 Full Pipeline - Research → Fact-Check → Business Analysis → Writing"
+                };
+                
                 this.initializeEventListeners();
+                this.initializeAgentSelector(); // NEW
                 this.updateWelcomeTime();
                 this.checkApiStatus();
                 this.loadCostSummary();
@@ -430,6 +634,43 @@
                 // Initialize toggle states
                 this.updateToggleState(this.searchToggle, this.useSearchCheckbox.checked);
                 this.updateToggleState(this.tempToggle, this.isCreativeMode);
+            }
+
+            // NEW MULTI-AGENT FEATURE - Agent Selector
+            initializeAgentSelector() {
+                const agentButtons = document.querySelectorAll('.agent-btn');
+                const agentDescription = document.getElementById('agentDescription');
+                
+                agentButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Remove active class from all buttons
+                        agentButtons.forEach(b => b.classList.remove('active'));
+                        
+                        // Add active class to clicked button
+                        btn.classList.add('active');
+                        
+                        // Update selected agent
+                        this.selectedAgent = btn.dataset.agent;
+                        
+                        // Update description
+                        agentDescription.textContent = this.agentDescriptions[this.selectedAgent];
+                        
+                        // Update placeholder based on agent
+                        this.updateInputPlaceholder();
+                    });
+                });
+            }
+
+            updateInputPlaceholder() {
+                const placeholders = {
+                    chat: "Type your message here...",
+                    research: "What topic would you like me to research?",
+                    fact_check: "What claim would you like me to verify?",
+                    business_analyst: "What business topic would you like analyzed?",
+                    writing: "What content would you like me to refine?",
+                    pipeline: "What topic should I process through all agents?"
+                };
+                this.chatInput.placeholder = placeholders[this.selectedAgent] || "Type your message here...";
             }
 
             updateToggleState(toggle, isActive) {
@@ -502,7 +743,8 @@
                 contentDiv.className = 'message-content';
                 
                 const textDiv = document.createElement('div');
-                textDiv.textContent = content;
+                // NEW MULTI-AGENT FEATURE - Format agent responses
+                textDiv.innerHTML = this.formatAgentResponse(content);
                 contentDiv.appendChild(textDiv);
                 
                 if (metadata.timestamp || metadata.cost || metadata.model) {
@@ -538,6 +780,48 @@
                 this.scrollToBottom();
                 
                 return messageDiv;
+            }
+
+            // NEW MULTI-AGENT FEATURE - Format agent responses for better readability
+            formatAgentResponse(content) {
+                // Convert markdown-style formatting to HTML
+                let formatted = content;
+                
+                // Convert headers with separators (━━━━ TITLE ━━━━)
+                formatted = formatted.replace(/━+\s*([^━\n]+)\s*━+/g, '<div class="agent-section-header">$1</div>');
+                
+                // Convert bold text (**text**)
+                formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                
+                // Convert bullet points (• text)
+                formatted = formatted.replace(/^[•▪]\s+(.+)$/gm, '<li>$1</li>');
+                
+                // Wrap consecutive list items in <ul>
+                formatted = formatted.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+                
+                // Convert numbered lists (1. text)
+                formatted = formatted.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
+                
+                // Convert links [text](url)
+                formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="agent-link">$1</a>');
+                
+                // Convert line breaks to <br> but preserve structure
+                formatted = formatted.split('\n\n').map(para => {
+                    if (para.includes('<li>') || para.includes('<div class="agent-section-header">')) {
+                        return para;
+                    }
+                    return '<p>' + para.replace(/\n/g, '<br>') + '</p>';
+                }).join('');
+                
+                // Add special styling for verdicts
+                formatted = formatted.replace(/(Verdict:\s*)(✅|❌|⚠️)\s*(TRUE|FALSE|UNCERTAIN)/g, 
+                    '<div class="verdict-badge">$1<span class="verdict-icon">$2</span> <strong>$3</strong></div>');
+                
+                // Add styling for confidence scores
+                formatted = formatted.replace(/(Confidence Score:\s*)(\d+%)/g, 
+                    '<div class="confidence-score">$1<strong>$2</strong></div>');
+                
+                return formatted;
             }
 
             addTypingIndicator() {
@@ -596,25 +880,19 @@
                 const typingIndicator = this.addTypingIndicator();
                 
                 try {
-                    const response = await fetch(`${this.apiBaseUrl}/v1/chat`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            messages: [
-                                {
-                                    role: 'user',
-                                    content: message
-                                }
-                            ],
-                            options: {
-                                use_search: this.useSearchCheckbox.checked,
-                                temperature: this.isCreativeMode ? 0.8 : 0.3,
-                                max_tokens: 2000
-                            }
-                        })
-                    });
+                    let response;
+                    
+                    // NEW MULTI-AGENT FEATURE - Route based on selected agent
+                    if (this.selectedAgent === 'chat') {
+                        // Standard chat endpoint
+                        response = await this.sendStandardChat(message);
+                    } else if (this.selectedAgent === 'pipeline') {
+                        // Pipeline endpoint
+                        response = await this.sendPipeline(message);
+                    } else {
+                        // Single agent endpoint
+                        response = await this.sendAgentRequest(message);
+                    }
 
                     this.removeTypingIndicator();
 
@@ -626,16 +904,26 @@
                     const data = await response.json();
                     
                     // Update cost tracking
-                    const cost = parseFloat(response.headers.get('X-Cost-USD') || '0');
+                    const cost = parseFloat(response.headers.get('X-Cost-USD') || data.cost_usd || data.total_cost_usd || '0');
                     this.totalCost += cost;
                     this.updateCostDisplay();
                     
-                    // Add bot response
-                    this.addMessage(data.text, false, {
-                        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                        cost: cost,
-                        model: data.model
-                    });
+                    // Add bot response(s)
+                    if (this.selectedAgent === 'pipeline') {
+                        this.displayPipelineResults(data);
+                    } else if (this.selectedAgent === 'chat') {
+                        this.addMessage(data.text, false, {
+                            timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            cost: cost,
+                            model: data.model
+                        });
+                    } else {
+                        this.addMessage(data.content, false, {
+                            timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            cost: cost,
+                            model: data.agent_name
+                        });
+                    }
 
                 } catch (error) {
                     this.removeTypingIndicator();
@@ -649,6 +937,87 @@
                 } finally {
                     this.sendButton.disabled = false;
                     this.chatInput.focus();
+                }
+            }
+
+            // NEW MULTI-AGENT FEATURE - Standard chat endpoint
+            async sendStandardChat(message) {
+                return fetch(`${this.apiBaseUrl}/v1/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            {
+                                role: 'user',
+                                content: message
+                            }
+                        ],
+                        options: {
+                            use_search: this.useSearchCheckbox.checked,
+                            temperature: this.isCreativeMode ? 0.8 : 0.3,
+                            max_tokens: 2000
+                        }
+                    })
+                });
+            }
+
+            // NEW MULTI-AGENT FEATURE - Single agent endpoint
+            async sendAgentRequest(message) {
+                return fetch(`${this.apiBaseUrl}/v1/agents/run`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        agent_type: this.selectedAgent,
+                        query: message
+                    })
+                });
+            }
+
+            // NEW MULTI-AGENT FEATURE - Pipeline endpoint
+            async sendPipeline(message) {
+                return fetch(`${this.apiBaseUrl}/v1/agents/pipeline/standard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: message,
+                        output_format: 'report'
+                    })
+                });
+            }
+
+            // NEW MULTI-AGENT FEATURE - Display pipeline results
+            displayPipelineResults(data) {
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Display each agent's response
+                if (data.responses && data.responses.length > 0) {
+                    data.responses.forEach((agentResponse, index) => {
+                        const agentEmoji = {
+                            'Research Agent': '🔍',
+                            'Fact-Check Agent': '✅',
+                            'Business Analyst Agent': '📊',
+                            'Writing Agent': '✍️'
+                        };
+                        
+                        const emoji = agentEmoji[agentResponse.agent_name] || '🤖';
+                        const content = `${emoji} **${agentResponse.agent_name}**\n\n${agentResponse.content}`;
+                        
+                        this.addMessage(content, false, {
+                            timestamp: timestamp,
+                            cost: agentResponse.cost_usd,
+                            model: agentResponse.agent_name
+                        });
+                    });
+                    
+                    // Add summary
+                    const summaryContent = `✨ **Pipeline Complete**\n\nProcessed through ${data.agents_run.length} agents\nTotal cost: $${data.total_cost_usd.toFixed(6)}`;
+                    this.addMessage(summaryContent, false, { timestamp });
                 }
             }
         }

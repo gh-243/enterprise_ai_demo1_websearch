@@ -1,0 +1,2764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Assistant - AI Learning Companion</title>
+    
+    <!-- Markdown parser for professional formatting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: var(--light);
+            color: var(--text);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Content Area */
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* Document Library */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+
+        .upload-area.dragging {
+            border-color: var(--primary);
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .document-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .document-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .document-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .document-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .document-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .message.assistant .message-avatar {
+            background: var(--light);
+            border: 2px solid var(--border);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        /* Professional markdown formatting in chat messages */
+        .message-content h1, .message-content h2, .message-content h3,
+        .message-content h4, .message-content h5, .message-content h6 {
+            margin: 16px 0 8px 0;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .message-content h1 { font-size: 24px; }
+        .message-content h2 { font-size: 20px; }
+        .message-content h3 { font-size: 18px; }
+        .message-content h4 { font-size: 16px; }
+
+        .message-content h1:first-child, .message-content h2:first-child,
+        .message-content h3:first-child, .message-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .message-content ul, .message-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        .message-content li {
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .message-content p {
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .message-content p:first-child {
+            margin-top: 0;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .message-content em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .message-content code {
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--secondary);
+        }
+
+        .message-content pre {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .message-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 16px;
+            margin: 12px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .message-content a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .message-content a:hover {
+            text-decoration: underline;
+        }
+
+        .message-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        /* Study Guide Professional Formatting */
+        .study-guide-card {
+            background: white;
+            padding: 24px;
+        }
+
+        .study-guide-content h1, .study-guide-content h2, .study-guide-content h3,
+        .study-guide-content h4, .study-guide-content h5, .study-guide-content h6 {
+            margin: 24px 0 12px 0;
+            color: var(--text);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .study-guide-content h1 { font-size: 28px; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
+        .study-guide-content h2 { font-size: 24px; color: var(--primary); }
+        .study-guide-content h3 { font-size: 20px; }
+        .study-guide-content h4 { font-size: 18px; }
+
+        .study-guide-content h1:first-child, .study-guide-content h2:first-child,
+        .study-guide-content h3:first-child, .study-guide-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .study-guide-content ul, .study-guide-content ol {
+            margin: 16px 0;
+            padding-left: 28px;
+        }
+
+        .study-guide-content li {
+            margin: 8px 0;
+            line-height: 1.7;
+        }
+
+        .study-guide-content p {
+            margin: 14px 0;
+            line-height: 1.7;
+            color: var(--text);
+        }
+
+        .study-guide-content p:first-child {
+            margin-top: 0;
+        }
+
+        .study-guide-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .study-guide-content em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .study-guide-content code {
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .study-guide-content pre {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        .study-guide-content pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            color: var(--text);
+            border: none;
+        }
+
+        .study-guide-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+            margin: 16px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+            background: #f9f9f9;
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .study-guide-content a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--primary);
+        }
+
+        .study-guide-content a:hover {
+            border-bottom: 1px solid var(--primary);
+        }
+
+        .study-guide-content hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 24px 0;
+        }
+
+        .study-guide-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .study-guide-content th,
+        .study-guide-content td {
+            padding: 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .study-guide-content th {
+            background: var(--bg);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Podcast Generator */
+        .podcast-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .podcast-list {
+            margin-top: 32px;
+        }
+
+        .podcast-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .podcast-icon {
+            font-size: 32px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            color: white;
+        }
+
+        .podcast-info {
+            flex: 1;
+        }
+
+        .podcast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .podcast-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            font-size: 16px;
+        }
+
+        /* Audio Player */
+        .audio-player {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            margin-top: 24px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .play-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Status Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Audio Player */
+        .audio-player {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 16px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .audio-player-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .audio-player-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .audio-player-info h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .audio-player-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .audio-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .audio-btn-primary {
+            width: 56px;
+            height: 56px;
+            background: white;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .audio-btn-primary:hover {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .audio-time {
+            font-size: 14px;
+            min-width: 45px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-handle {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .audio-features {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .speed-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .speed-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .speed-display {
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .download-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .download-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Playlist */
+        .playlist {
+            margin-top: 24px;
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .playlist-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .playlist-item:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .playlist-item.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .playlist-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .playlist-info {
+            flex: 1;
+        }
+
+        .playlist-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .playlist-meta {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .playlist-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Quiz Styles */
+        .quiz-question {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .quiz-question.answered {
+            border-color: var(--primary);
+        }
+
+        .quiz-option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            font-weight: 600;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Note Styles */
+        .note-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-card.pinned {
+            border-left-width: 6px;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .note-tag {
+            display: inline-block;
+            background: var(--bg-secondary);
+            color: var(--text-dark);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+
+        /* Achievement Styles */
+        .achievement-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .achievement-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .achievement-desc {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .document-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1 1 calc(50% - 4px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Student Assistant</h1>
+            <p>Your AI-powered learning companion with document search and podcast generation</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('library')">
+                📚 Library
+            </button>
+            <button class="tab" onclick="switchTab('chat')">
+                💬 Chat
+            </button>
+            <button class="tab" onclick="switchTab('podcast')">
+                🎙️ Podcasts
+            </button>
+            <button class="tab" onclick="switchTab('search')">
+                🔍 Search
+            </button>
+            <button class="tab" onclick="switchTab('study-guide')">
+                📖 Study Guides
+            </button>
+            <button class="tab" onclick="switchTab('quiz')">
+                📝 Quizzes
+            </button>
+            <button class="tab" onclick="switchTab('notes')">
+                📔 Notes
+            </button>
+            <button class="tab" onclick="switchTab('progress')">
+                📈 Progress
+            </button>
+        </div>
+
+        <!-- Document Library Tab -->
+        <div id="library-content" class="content active">
+            <h2 style="margin-bottom: 20px;">📚 Document Library</h2>
+            
+            <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+                <div class="upload-icon">📤</div>
+                <h3>Upload Course Materials</h3>
+                <p style="color: var(--text-light); margin-top: 8px;">
+                    Drag & drop or click to upload PDF, DOCX, EPUB, or TXT files
+                </p>
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx,.epub,.txt" onchange="uploadFile(this.files[0])">
+            </div>
+
+            <div id="documents-container">
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h3>No documents yet</h3>
+                    <p>Upload your course materials to get started</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat-content" class="content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">💬 AI Study Chat</h2>
+                <button class="btn btn-secondary" onclick="clearChat()" style="padding: 8px 16px;">
+                    🗑️ Clear Chat
+                </button>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            Hi! I'm your AI study assistant. I can help you understand course concepts, research topics, fact-check information, and more. I'll search your uploaded documents first, then supplement with web search if needed. How can I help you today?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <textarea class="chat-input" id="chat-input" placeholder="Ask me anything about your course materials..." rows="3"></textarea>
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Podcast Tab -->
+        <div id="podcast-content" class="content">
+            <h2 style="margin-bottom: 20px;">🎙️ Podcast Generator</h2>
+            
+            <div class="podcast-form">
+                <div class="form-group">
+                    <label class="form-label">What would you like to learn about?</label>
+                    <textarea class="form-textarea" id="podcast-query" placeholder="e.g., Explain machine learning fundamentals" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Style</label>
+                        <select class="form-select" id="podcast-style">
+                            <option value="conversational">Conversational - Friendly & engaging</option>
+                            <option value="lecture">Lecture - Structured & educational</option>
+                            <option value="summary">Summary - Quick overview</option>
+                            <option value="storytelling">Storytelling - Narrative style</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Voice</label>
+                        <select class="form-select" id="podcast-voice">
+                            <option value="nova">Nova - Bright & energetic</option>
+                            <option value="alloy">Alloy - Neutral & clear</option>
+                            <option value="echo">Echo - Warm & friendly</option>
+                            <option value="fable">Fable - Expressive & animated</option>
+                            <option value="onyx">Onyx - Deep & authoritative</option>
+                            <option value="shimmer">Shimmer - Soft & calming</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-input" id="podcast-duration" value="5" min="1" max="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Format</label>
+                        <select class="form-select" id="podcast-format">
+                            <option value="mp3">MP3 - Universal</option>
+                            <option value="opus">Opus - Best compression</option>
+                            <option value="aac">AAC - High quality</option>
+                            <option value="flac">FLAC - Lossless</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="generatePodcast()" id="generate-btn">
+                    🎙️ Generate Podcast
+                </button>
+            </div>
+
+            <div class="podcast-list" id="podcast-list">
+                <h3 style="margin-bottom: 16px;">Your Podcasts</h3>
+                <div class="empty-state">
+                    <div class="empty-icon">🎙️</div>
+                    <h3>No podcasts yet</h3>
+                    <p>Generate your first podcast to get started</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search-content" class="content">
+            <h2 style="margin-bottom: 20px;">🔍 Document Search</h2>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+                <input type="text" class="form-input" id="search-input" placeholder="Search your documents..." onkeypress="if(event.key==='Enter') searchDocuments()">
+                <button class="btn btn-primary" onclick="searchDocuments()" style="margin-top: 12px;">
+                    🔍 Search
+                </button>
+            </div>
+
+            <div id="search-results">
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h3>Search your documents</h3>
+                    <p>Enter a query to search across all your uploaded materials</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Guide Tab -->
+        <div id="study-guide-content" class="content">
+            <h2 style="margin-bottom: 20px;">📖 Study Guide Generator</h2>
+            
+            <div class="form-group" style="max-width: 800px; margin-bottom: 24px;">
+                <label class="form-label">What topic would you like to study?</label>
+                <textarea class="form-textarea" id="study-guide-topic" placeholder="e.g., Machine Learning Fundamentals, Python Classes, Calculus Derivatives..." rows="2"></textarea>
+                
+                <div class="form-row" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level</label>
+                        <select class="form-select" id="study-guide-difficulty">
+                            <option value="beginner">Beginner - New to the topic</option>
+                            <option value="intermediate" selected>Intermediate - Some knowledge</option>
+                            <option value="advanced">Advanced - Deep dive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Include Practice Questions</label>
+                        <select class="form-select" id="study-guide-questions">
+                            <option value="true" selected>Yes - Include questions</option>
+                            <option value="false">No - Guide only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateStudyGuide()" id="study-guide-btn" style="margin-top: 16px;">
+                    📖 Generate Study Guide
+                </button>
+            </div>
+
+            <div id="study-guide-result" style="display: none;">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 id="study-guide-title">Study Guide</h3>
+                        <button class="btn btn-secondary" onclick="downloadStudyGuide()">
+                            ⬇️ Download
+                        </button>
+                    </div>
+                    <div id="study-guide-content-display" style="line-height: 1.8;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Tab -->
+        <div id="quiz-content" class="content">
+            <h2 style="margin-bottom: 20px;">📝 Quiz Generator & Practice</h2>
+            
+            <!-- Quiz Generator Form -->
+            <div id="quiz-generator" class="form-group" style="max-width: 800px; margin-bottom: 24px;">
+                <label class="form-label">What topic would you like to quiz yourself on?</label>
+                <textarea class="form-textarea" id="quiz-topic" placeholder="e.g., Python Functions, JavaScript Arrays, Linear Algebra..." rows="2"></textarea>
+                
+                <div class="form-row" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Number of Questions</label>
+                        <input type="number" class="form-input" id="quiz-num-questions" value="5" min="1" max="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level</label>
+                        <select class="form-select" id="quiz-difficulty">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate" selected>Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateQuiz()" id="quiz-gen-btn" style="margin-top: 16px;">
+                    📝 Generate Quiz
+                </button>
+            </div>
+
+            <!-- Quiz Display -->
+            <div id="quiz-display" style="display: none;">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 id="quiz-title">Quiz</h3>
+                        <div id="quiz-timer" style="font-size: 18px; color: var(--primary); font-weight: 600;">
+                            ⏱️ <span id="timer-display">00:00</span>
+                        </div>
+                    </div>
+                    <div id="quiz-questions"></div>
+                    <button class="btn btn-primary" onclick="submitQuiz()" id="quiz-submit-btn" style="margin-top: 20px;">
+                        ✅ Submit Quiz
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Results -->
+            <div id="quiz-results" style="display: none;">
+                <div class="card">
+                    <h3>Quiz Results 🎯</h3>
+                    <div id="quiz-score" style="font-size: 48px; text-align: center; margin: 30px 0; font-weight: 700;"></div>
+                    <div id="quiz-feedback"></div>
+                    <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top: 20px;">
+                        🔄 Take Another Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notes-content" class="content">
+            <h2 style="margin-bottom: 20px;">📔 Study Notes</h2>
+            
+            <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                <input type="text" class="form-input" id="notes-search" placeholder="🔍 Search notes..." onkeyup="searchNotes()" style="flex: 1;">
+                <button class="btn btn-primary" onclick="showNoteEditor()">
+                    ➕ New Note
+                </button>
+            </div>
+
+            <!-- Note Editor Modal -->
+            <div id="note-editor" style="display: none; margin-bottom: 24px;">
+                <div class="card">
+                    <h3 id="note-editor-title">New Note</h3>
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-input" id="note-title" placeholder="Note title...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content (Markdown supported)</label>
+                        <textarea class="form-textarea" id="note-content" placeholder="Start typing your notes... Use markdown for formatting." rows="10"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tags (comma-separated)</label>
+                            <input type="text" class="form-input" id="note-tags" placeholder="python, functions, important">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Color</label>
+                            <select class="form-select" id="note-color">
+                                <option value="#667eea">💜 Purple</option>
+                                <option value="#3b82f6">💙 Blue</option>
+                                <option value="#10b981">💚 Green</option>
+                                <option value="#f59e0b">🧡 Orange</option>
+                                <option value="#ef4444">❤️ Red</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="saveNote()">
+                            💾 Save Note
+                        </button>
+                        <button class="btn btn-secondary" onclick="cancelNoteEdit()">
+                            ❌ Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes List -->
+            <div id="notes-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📔</div>
+                    <h3>No notes yet</h3>
+                    <p>Create your first note to get started</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tab -->
+        <div id="progress-content" class="content">
+            <h2 style="margin-bottom: 20px;">📈 Learning Progress</h2>
+            
+            <!-- Stats Grid -->
+            <div class="document-grid" id="stats-grid">
+                <div class="card">
+                    <h3>📚 Documents</h3>
+                    <div style="font-size: 36px; font-weight: 700; margin: 16px 0;" id="stat-documents">0</div>
+                    <p style="color: var(--text-light);">Documents uploaded</p>
+                </div>
+                <div class="card">
+                    <h3>📝 Quizzes</h3>
+                    <div style="font-size: 36px; font-weight: 700; margin: 16px 0;" id="stat-quizzes">0</div>
+                    <p style="color: var(--text-light);">Average score</p>
+                </div>
+                <div class="card">
+                    <h3>⏰ Study Time</h3>
+                    <div style="font-size: 36px; font-weight: 700; margin: 16px 0;" id="stat-time">0h</div>
+                    <p style="color: var(--text-light);">Total hours</p>
+                </div>
+                <div class="card">
+                    <h3>🔥 Streak</h3>
+                    <div style="font-size: 36px; font-weight: 700; margin: 16px 0;" id="stat-streak">0</div>
+                    <p style="color: var(--text-light);">Days in a row</p>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div style="margin-top: 32px;">
+                <h3 style="margin-bottom: 16px;">🏆 Achievements</h3>
+                <div id="achievements-grid" class="document-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">🏆</div>
+                        <h3>No achievements yet</h3>
+                        <p>Keep learning to unlock achievements!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div style="margin-top: 32px;">
+                <h3 style="margin-bottom: 16px;">📊 Detailed Statistics</h3>
+                <div class="card">
+                    <div id="detailed-stats" style="line-height: 2;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API base URL
+        const API_BASE = 'http://localhost:8001';
+        
+        // Chat history for conversation context
+        let chatHistory = [];
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-content`).classList.add('active');
+
+            // Load data for the tab
+            if (tabName === 'library') loadDocuments();
+            if (tabName === 'podcast') loadPodcasts();
+        }
+
+        // Drag and drop for file upload
+        const uploadArea = document.getElementById('upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            if (file) uploadFile(file);
+        });
+
+        // Upload file
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/documents/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('✅ Document uploaded successfully!');
+                    loadDocuments();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Upload failed: ${error.detail}`);
+                }
+            } catch (error) {
+                alert(`❌ Upload failed: ${error.message}`);
+            }
+        }
+
+        // Load documents
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/documents/list`);
+                const documents = await response.json();
+
+                const container = document.getElementById('documents-container');
+                
+                if (documents.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <h3>No documents yet</h3>
+                            <p>Upload your course materials to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = '<div class="document-grid">' +
+                    documents.map(doc => `
+                        <div class="document-card">
+                            <div class="document-icon">📄</div>
+                            <div class="document-title">${doc.title}</div>
+                            <div class="document-meta">
+                                ${doc.file_type.toUpperCase()} • ${(doc.file_size / 1024).toFixed(0)} KB
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <span class="badge badge-success">${doc.chunks_count || 0} chunks</span>
+                            </div>
+                        </div>
+                    `).join('') +
+                    '</div>';
+            } catch (error) {
+                console.error('Failed to load documents:', error);
+            }
+        }
+
+        // Send chat message
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addChatMessage('user', message);
+            input.value = '';
+
+            // Add loading message
+            const loadingId = 'loading-' + Date.now();
+            addChatMessage('assistant', '<div class="loading"></div> Thinking...', loadingId);
+
+            try {
+                // Build conversation history
+                const messages = chatHistory.concat([{ role: 'user', content: message }]);
+                
+                const response = await fetch(`${API_BASE}/v1/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: messages,
+                        options: {
+                            use_search: false,
+                            temperature: 0.7,
+                            max_tokens: 1000
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                // Remove loading message
+                document.getElementById(loadingId)?.remove();
+
+                if (response.ok && result.text) {
+                    // Add response
+                    let content = result.text;
+                    
+                    // Add citations if available
+                    if (result.citations && result.citations.length > 0) {
+                        content += '\n\n<strong>Sources:</strong>\n';
+                        result.citations.slice(0, 3).forEach((citation, i) => {
+                            content += `<br>${i + 1}. <a href="${citation.url}" target="_blank">${citation.title}</a>`;
+                        });
+                    }
+                    
+                    addChatMessage('assistant', content);
+                    
+                    // Add assistant response to chat history
+                    chatHistory.push({ role: 'user', content: message });
+                    chatHistory.push({ role: 'assistant', content: result.text });
+                    
+                    // Keep only last 10 messages
+                    if (chatHistory.length > 10) {
+                        chatHistory = chatHistory.slice(-10);
+                    }
+                } else {
+                    throw new Error(result.detail || 'Failed to get response');
+                }
+
+            } catch (error) {
+                console.error('Chat error:', error);
+                document.getElementById(loadingId)?.remove();
+                addChatMessage('assistant', '❌ Sorry, I encountered an error. Please try again.');
+            }
+        }
+
+        function addChatMessage(role, content, id = null) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            if (id) messageDiv.id = id;
+            
+            // Convert markdown to HTML for professional formatting
+            let formattedContent = content;
+            if (role === 'assistant') {
+                try {
+                    if (typeof marked !== 'undefined' && marked.parse) {
+                        formattedContent = marked.parse(content);
+                    } else {
+                        console.warn('Marked.js not loaded, using plain text');
+                        formattedContent = content.replace(/\n/g, '<br>');
+                    }
+                } catch (error) {
+                    console.error('Markdown parsing error:', error);
+                    formattedContent = content.replace(/\n/g, '<br>');
+                }
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${role === 'user' ? '👤' : '🤖'}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function clearChat() {
+            chatHistory = [];
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = `
+                <div class="message assistant">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        Hi! I'm your AI study assistant. I can help you understand course concepts, answer questions, and explain topics. How can I help you today?
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add Enter key support for chat input
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
+
+        // Generate podcast
+        async function generatePodcast() {
+            const query = document.getElementById('podcast-query').value.trim();
+            if (!query) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            const btn = document.getElementById('generate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"></div> Generating...';
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/podcasts/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        style: document.getElementById('podcast-style').value,
+                        voice: document.getElementById('podcast-voice').value,
+                        format: document.getElementById('podcast-format').value,
+                        duration_target: parseInt(document.getElementById('podcast-duration').value)
+                    })
+                });
+
+                if (response.ok) {
+                    alert('✅ Podcast generated successfully!');
+                    document.getElementById('podcast-query').value = '';
+                    loadPodcasts();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Generation failed: ${error.detail}`);
+                }
+            } catch (error) {
+                alert(`❌ Generation failed: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎙️ Generate Podcast';
+            }
+        }
+
+        // Load podcasts
+        async function loadPodcasts() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/podcasts/list`);
+                const podcasts = await response.json();
+
+                const container = document.getElementById('podcast-list');
+                
+                if (podcasts.length === 0) {
+                    container.innerHTML = `
+                        <h3 style="margin-bottom: 16px;">Your Podcasts</h3>
+                        <div class="empty-state">
+                            <div class="empty-icon">🎙️</div>
+                            <h3>No podcasts yet</h3>
+                            <p>Generate your first podcast to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Create playlist
+                createPlaylist(podcasts);
+
+                // Player container (will be populated when a podcast is played)
+                let html = '<div id="audio-player-container"></div>';
+                
+                // Playlist header
+                html += `
+                    <div class="playlist">
+                        <div class="playlist-header">
+                            <h3>📚 Your Podcast Library (${podcasts.length})</h3>
+                            ${podcasts.length > 1 ? '<button class="btn btn-secondary" onclick="playAll()">▶️ Play All</button>' : ''}
+                        </div>
+                `;
+
+                // Playlist items
+                html += podcasts.map((podcast, index) => `
+                    <div class="playlist-item ${index === currentTrackIndex ? 'active' : ''}" onclick="playFromPlaylist(${index})">
+                        <div class="playlist-icon">${index === currentTrackIndex && isPlaying ? '�' : '�🎙️'}</div>
+                        <div class="playlist-info">
+                            <div class="playlist-title">${podcast.podcast_id}</div>
+                            <div class="playlist-meta">
+                                ${podcast.format.toUpperCase()} • ${(podcast.file_size / 1024 / 1024).toFixed(2)} MB • 
+                                ${podcast.created_at ? new Date(podcast.created_at).toLocaleDateString() : 'Recent'}
+                            </div>
+                        </div>
+                        <div class="playlist-actions">
+                            <button class="icon-btn" onclick="event.stopPropagation(); playPodcast('${podcast.podcast_id}.${podcast.format}', ${JSON.stringify(podcast).replace(/"/g, '&quot;')})" title="Play">
+                                ▶️
+                            </button>
+                            <button class="icon-btn" onclick="event.stopPropagation(); downloadPodcast('${podcast.podcast_id}.${podcast.format}')" title="Download">
+                                ⬇️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Failed to load podcasts:', error);
+            }
+        }
+
+        // Play from playlist
+        function playFromPlaylist(index) {
+            currentTrackIndex = index;
+            const podcast = currentPlaylist[index];
+            playPodcast(`${podcast.podcast_id}.${podcast.format}`, podcast);
+        }
+
+        // Play all podcasts
+        function playAll() {
+            if (currentPlaylist.length > 0) {
+                playFromPlaylist(0);
+            }
+        }
+
+        // Download podcast
+        function downloadPodcast(filename) {
+            window.open(`${API_BASE}/v1/podcasts/download/${filename}`, '_blank');
+        }
+
+        // Audio Player State
+        let currentAudio = null;
+        let currentPlaylist = [];
+        let currentTrackIndex = -1;
+        let isPlaying = false;
+
+        // Play podcast with custom player
+        async function playPodcast(filename, podcastData) {
+            // Stop current audio if playing
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            // Create or update audio player UI
+            let playerContainer = document.getElementById('audio-player-container');
+            if (!playerContainer) {
+                playerContainer = document.createElement('div');
+                playerContainer.id = 'audio-player-container';
+                document.querySelector('#podcast-list').insertAdjacentElement('afterbegin', playerContainer);
+            }
+
+            const audioUrl = `${API_BASE}/v1/podcasts/download/${filename}`;
+            
+            playerContainer.innerHTML = `
+                <div class="audio-player">
+                    <div class="audio-player-header">
+                        <div class="audio-player-icon">🎵</div>
+                        <div class="audio-player-info">
+                            <h3>${filename.replace(/\.[^/.]+$/, '')}</h3>
+                            <p>Now Playing</p>
+                        </div>
+                    </div>
+
+                    <div class="audio-controls">
+                        <button class="audio-btn" onclick="skipTime(-10)">⏪</button>
+                        <button class="audio-btn audio-btn-primary" id="play-pause-btn" onclick="togglePlayPause()">▶️</button>
+                        <button class="audio-btn" onclick="skipTime(10)">⏩</button>
+                        <span class="audio-time" id="current-time">0:00</span>
+                        <div class="progress-container" id="progress-container" onclick="seekAudio(event)">
+                            <div class="progress-bar" id="progress-bar">
+                                <div class="progress-handle"></div>
+                            </div>
+                        </div>
+                        <span class="audio-time" id="total-time">0:00</span>
+                    </div>
+
+                    <div class="audio-features">
+                        <div class="speed-control">
+                            <button class="speed-btn" onclick="changeSpeed(-0.25)">−</button>
+                            <span class="speed-display" id="speed-display">1.0x</span>
+                            <button class="speed-btn" onclick="changeSpeed(0.25)">+</button>
+                        </div>
+
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
+                        </div>
+
+                        <button class="download-btn" onclick="downloadPodcast('${filename}')">
+                            ⬇️ Download
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Create audio element
+            currentAudio = new Audio(audioUrl);
+            currentAudio.playbackRate = 1.0;
+            
+            // Set up event listeners
+            currentAudio.addEventListener('loadedmetadata', () => {
+                document.getElementById('total-time').textContent = formatTime(currentAudio.duration);
+            });
+
+            currentAudio.addEventListener('timeupdate', () => {
+                const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                document.getElementById('progress-bar').style.width = progress + '%';
+                document.getElementById('current-time').textContent = formatTime(currentAudio.currentTime);
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                isPlaying = false;
+                document.getElementById('play-pause-btn').textContent = '▶️';
+                // Auto-play next track if in playlist
+                if (currentTrackIndex < currentPlaylist.length - 1) {
+                    playNextTrack();
+                }
+            });
+
+            // Auto-play
+            currentAudio.play();
+            isPlaying = true;
+            document.getElementById('play-pause-btn').textContent = '⏸️';
+        }
+
+        // Toggle play/pause
+        function togglePlayPause() {
+            if (!currentAudio) return;
+
+            if (isPlaying) {
+                currentAudio.pause();
+                document.getElementById('play-pause-btn').textContent = '▶️';
+            } else {
+                currentAudio.play();
+                document.getElementById('play-pause-btn').textContent = '⏸️';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Skip time (seconds)
+        function skipTime(seconds) {
+            if (!currentAudio) return;
+            currentAudio.currentTime = Math.max(0, Math.min(currentAudio.duration, currentAudio.currentTime + seconds));
+        }
+
+        // Seek audio
+        function seekAudio(event) {
+            if (!currentAudio) return;
+            const container = document.getElementById('progress-container');
+            const clickX = event.offsetX;
+            const width = container.offsetWidth;
+            const percentage = clickX / width;
+            currentAudio.currentTime = percentage * currentAudio.duration;
+        }
+
+        // Change playback speed
+        function changeSpeed(delta) {
+            if (!currentAudio) return;
+            const newSpeed = Math.max(0.5, Math.min(2.0, currentAudio.playbackRate + delta));
+            currentAudio.playbackRate = newSpeed;
+            document.getElementById('speed-display').textContent = newSpeed.toFixed(1) + 'x';
+        }
+
+        // Change volume
+        function changeVolume(value) {
+            if (!currentAudio) return;
+            currentAudio.volume = value / 100;
+        }
+
+        // Format time (seconds to mm:ss)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Playlist management
+        function createPlaylist(podcasts) {
+            currentPlaylist = podcasts;
+            currentTrackIndex = 0;
+        }
+
+        function playNextTrack() {
+            if (currentTrackIndex < currentPlaylist.length - 1) {
+                currentTrackIndex++;
+                const next = currentPlaylist[currentTrackIndex];
+                playPodcast(`${next.podcast_id}.${next.format}`, next);
+            }
+        }
+
+        function playPreviousTrack() {
+            if (currentTrackIndex > 0) {
+                currentTrackIndex--;
+                const prev = currentPlaylist[currentTrackIndex];
+                playPodcast(`${prev.podcast_id}.${prev.format}`, prev);
+            }
+        }
+
+        // Search documents
+        async function searchDocuments() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) return;
+
+            const container = document.getElementById('search-results');
+            container.innerHTML = '<div class="loading"></div> Searching...';
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/documents/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, max_results: 10 })
+                });
+
+                const results = await response.json();
+
+                if (results.results.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <h3>No results found</h3>
+                            <p>Try a different search query</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = results.results.map(result => `
+                    <div class="document-card" style="margin-bottom: 12px;">
+                        <div class="document-icon">📄</div>
+                        <div class="document-title">${result.document_title}</div>
+                        <div class="document-meta">Page ${result.page_number || 'N/A'} • Similarity: ${(result.similarity_score * 100).toFixed(0)}%</div>
+                        <p style="margin-top: 12px; font-size: 14px; color: var(--text-light);">
+                            ${result.content.substring(0, 200)}...
+                        </p>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Search failed</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ========================================
+        // PHASE 8: ADVANCED LEARNING FEATURES
+        // ========================================
+
+        // Study Guide Generation
+        async function generateStudyGuide() {
+            const topic = document.getElementById('study-guide-topic').value.trim();
+            const difficulty = document.getElementById('study-guide-difficulty').value;
+
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Generating...';
+
+            const container = document.getElementById('study-guide-content');
+            container.innerHTML = '<div class="loading"></div> Creating your study guide...';
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/learning/study-guides/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        difficulty: difficulty
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Display the study guide with professional markdown formatting
+                    const content = data.content || data.study_guide;
+                    
+                    // Use marked.js if available, otherwise fallback to plain text
+                    let formattedContent;
+                    try {
+                        if (typeof marked !== 'undefined' && marked.parse) {
+                            formattedContent = marked.parse(content);
+                        } else {
+                            // Fallback: preserve line breaks
+                            formattedContent = content.replace(/\n/g, '<br>');
+                        }
+                    } catch (markdownError) {
+                        console.error('Markdown parsing error:', markdownError);
+                        formattedContent = content.replace(/\n/g, '<br>');
+                    }
+                    
+                    container.innerHTML = `
+                        <div class="card study-guide-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h2>📖 ${topic}</h2>
+                                <span class="badge" style="background: var(--primary); color: white;">
+                                    ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                                </span>
+                            </div>
+                            <div class="study-guide-content">
+                                ${formattedContent}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Failed to generate study guide');
+                }
+            } catch (error) {
+                console.error('Study guide generation error:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Generation failed</h3>
+                        <p>${error.message}</p>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Check the browser console for details</p>
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // Quiz Generation
+        let currentQuiz = null;
+        let quizStartTime = null;
+        let userAnswers = {};
+
+        async function generateQuiz() {
+            const topic = document.getElementById('quiz-topic').value.trim();
+            const numQuestions = parseInt(document.getElementById('quiz-num-questions').value);
+            const difficulty = document.getElementById('quiz-difficulty').value;
+
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Generating...';
+
+            const container = document.getElementById('quiz-questions');
+            container.innerHTML = '<div class="loading"></div> Creating your quiz...';
+
+            try {
+                console.log('Generating quiz for:', topic, numQuestions, difficulty);
+                const response = await fetch(`${API_BASE}/v1/learning/quizzes/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        num_questions: numQuestions,
+                        difficulty: difficulty
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    // Store the quiz data with topic from metadata
+                    currentQuiz = data.quiz;
+                    currentQuiz.topic = data.metadata.topic;
+                    console.log('Current quiz set:', currentQuiz);
+                    quizStartTime = Date.now();
+                    userAnswers = {};
+                    displayQuiz();
+                } else {
+                    throw new Error(data.error || data.detail || 'Failed to generate quiz');
+                }
+            } catch (error) {
+                console.error('Quiz generation error:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Generation failed</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        function displayQuiz() {
+            console.log('displayQuiz called, currentQuiz:', currentQuiz);
+            if (!currentQuiz) {
+                console.error('No current quiz to display!');
+                return;
+            }
+            if (!currentQuiz.questions || currentQuiz.questions.length === 0) {
+                console.error('Quiz has no questions!', currentQuiz);
+                return;
+            }
+
+            // Show the quiz display section and hide the generator form
+            document.getElementById('quiz-generator').style.display = 'none';
+            document.getElementById('quiz-display').style.display = 'block';
+            document.getElementById('quiz-results').style.display = 'none';
+
+            // Set the quiz title
+            document.getElementById('quiz-title').textContent = currentQuiz.topic;
+
+            const container = document.getElementById('quiz-questions');
+            let html = '';
+
+            currentQuiz.questions.forEach((q, index) => {
+                html += `
+                    <div class="quiz-question">
+                        <div class="quiz-question-header">
+                            <span class="quiz-question-number">Question ${index + 1}</span>
+                            <span class="badge">${q.type}</span>
+                        </div>
+                        <p class="quiz-question-text">${q.question}</p>
+                        <div class="quiz-options">
+                `;
+
+                if (q.type === 'multiple_choice' && q.options) {
+                    q.options.forEach((option, optIndex) => {
+                        const letter = String.fromCharCode(65 + optIndex);
+                        html += `
+                            <div class="quiz-option" onclick="selectAnswer(${q.id}, '${letter}')">
+                                ${option}
+                            </div>
+                        `;
+                    });
+                } else if (q.type === 'true_false') {
+                    html += `
+                        <div class="quiz-option" onclick="selectAnswer(${q.id}, 'true')">True</div>
+                        <div class="quiz-option" onclick="selectAnswer(${q.id}, 'false')">False</div>
+                    `;
+                } else if (q.type === 'short_answer') {
+                    html += `
+                        <input type="text" class="form-input" id="answer-${q.id}" 
+                               placeholder="Type your answer..." 
+                               onchange="userAnswers[${q.id}] = this.value">
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Start timer
+            startQuizTimer();
+        }
+
+        function startQuizTimer() {
+            setInterval(() => {
+                if (!quizStartTime) return;
+                const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                const timerEl = document.getElementById('timer-display');
+                if (timerEl) {
+                    timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(questionId, answer) {
+            userAnswers[questionId] = answer;
+            // Visual feedback - find the question container and its options
+            const allQuestions = document.querySelectorAll('.quiz-question');
+            allQuestions.forEach(questionDiv => {
+                const options = questionDiv.querySelectorAll('.quiz-option');
+                options.forEach(opt => {
+                    if (opt.textContent.includes(answer) || opt.getAttribute('onclick').includes(`'${answer}'`)) {
+                        opt.classList.remove('selected');
+                    }
+                });
+            });
+            // Add selected class to clicked option
+            event.target.classList.add('selected');
+        }
+
+        async function submitQuiz() {
+            if (!currentQuiz) return;
+
+            const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+
+            // Format answers for submission
+            const answers = currentQuiz.questions.map((q) => ({
+                question_id: q.id,
+                answer: userAnswers[q.id] || ''
+            }));
+
+            console.log('Submitting quiz:', {
+                quiz: currentQuiz,
+                answers: answers,
+                time_taken: timeTaken
+            });
+
+            // Show loading in quiz display area (not results area)
+            const displayContainer = document.getElementById('quiz-questions');
+            displayContainer.innerHTML = '<div class="loading"></div> Grading your quiz...';
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/learning/quizzes/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        quiz: currentQuiz,
+                        answers: answers,
+                        time_taken: timeTaken
+                    })
+                });
+
+                console.log('Submit response status:', response.status);
+                
+                const results = await response.json();
+                console.log('Submit results:', results);
+
+                if (response.ok) {
+                    displayQuizResults(results);
+                } else {
+                    throw new Error(results.error || results.detail || 'Failed to submit quiz');
+                }
+            } catch (error) {
+                console.error('Quiz submission error:', error);
+                // Show error in quiz display area
+                displayContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Submission failed</h3>
+                        <p>${error.message}</p>
+                        <button class="btn btn-secondary" onclick="displayQuiz()" style="margin-top: 16px;">
+                            ← Back to Quiz
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayQuizResults(results) {
+            console.log('Displaying quiz results:', results);
+            
+            // Hide quiz display, show results
+            document.getElementById('quiz-display').style.display = 'none';
+            document.getElementById('quiz-results').style.display = 'block';
+            
+            const scorePercent = (results.correct / results.total * 100).toFixed(0);
+            
+            let emoji = '🎉';
+            if (scorePercent < 50) emoji = '📚';
+            else if (scorePercent < 75) emoji = '👍';
+
+            const scoreContainer = document.getElementById('quiz-score');
+            if (!scoreContainer) {
+                console.error('quiz-score element not found!');
+                return;
+            }
+            
+            scoreContainer.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 12px;">${emoji}</div>
+                <div style="font-size: 36px; font-weight: 700;">
+                    ${results.correct} / ${results.total}
+                </div>
+                <div style="font-size: 18px; color: var(--text-light); margin-top: 8px;">
+                    ${scorePercent}% Score
+                </div>
+            `;
+
+            let html = '<h3>📊 Detailed Results</h3>';
+
+            results.details.forEach((detail, index) => {
+                const isCorrect = detail.is_correct;
+                html += `
+                    <div class="card" style="margin-bottom: 12px; border-left: 4px solid ${isCorrect ? 'var(--success)' : 'var(--danger)'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <strong>Question ${index + 1}</strong>
+                            <span style="color: ${isCorrect ? 'var(--success)' : 'var(--danger)'};">
+                                ${isCorrect ? '✅ Correct' : '❌ Incorrect'}
+                            </span>
+                        </div>
+                        <p style="color: var(--text-light); margin-bottom: 8px;">${detail.question}</p>
+                        <div style="font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${detail.user_answer || '(not answered)'}</div>
+                            ${!isCorrect ? `<div style="color: var(--success);"><strong>Correct answer:</strong> ${detail.correct_answer}</div>` : ''}
+                            ${detail.explanation ? `<div style="margin-top: 8px; padding: 8px; background: var(--bg-light); border-radius: 4px;"><strong>Explanation:</strong> ${detail.explanation}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const feedbackContainer = document.getElementById('quiz-feedback');
+            if (!feedbackContainer) {
+                console.error('quiz-feedback element not found!');
+                return;
+            }
+            feedbackContainer.innerHTML = html;
+        }
+
+        function resetQuiz() {
+            currentQuiz = null;
+            quizStartTime = null;
+            userAnswers = {};
+            
+            // Show generator form, hide others
+            document.getElementById('quiz-generator').style.display = 'block';
+            document.getElementById('quiz-display').style.display = 'none';
+            document.getElementById('quiz-results').style.display = 'none';
+            
+            // Clear fields
+            document.getElementById('quiz-topic').value = '';
+            document.getElementById('quiz-questions').innerHTML = '';
+            document.getElementById('quiz-score').innerHTML = '';
+            document.getElementById('quiz-feedback').innerHTML = '';
+        }
+
+        // Notes Management
+        let allNotes = [];
+        let editingNoteId = null;
+
+        async function loadNotes() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/learning/notes`);
+                const data = await response.json();
+                allNotes = Array.isArray(data) ? data : (data.notes || []);
+                displayNotes(allNotes);
+            } catch (error) {
+                console.error('Failed to load notes:', error);
+            }
+        }
+
+        function displayNotes(notes) {
+            const container = document.getElementById('notes-list');
+            
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📔</div>
+                        <h3>No notes yet</h3>
+                        <p>Create your first note to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notes.map(note => `
+                <div class="note-card" style="border-left-color: ${note.color};">
+                    <div class="note-header">
+                        <h3>${note.title}</h3>
+                        <div style="display: flex; gap: 8px;">
+                            ${note.pinned ? '<span title="Pinned">📌</span>' : ''}
+                            <button class="icon-btn" onclick="editNote('${note.note_id}')" title="Edit">✏️</button>
+                            <button class="icon-btn" onclick="deleteNote('${note.note_id}')" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <div style="color: var(--text-light); margin: 12px 0; white-space: pre-wrap;">
+                        ${note.content.substring(0, 200)}${note.content.length > 200 ? '...' : ''}
+                    </div>
+                    ${note.tags.length > 0 ? `
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            ${note.tags.map(tag => `<span class="note-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="font-size: 12px; color: var(--text-light); margin-top: 12px;">
+                        Updated: ${new Date(note.updated_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showNoteEditor() {
+            editingNoteId = null;
+            document.getElementById('note-editor-title').textContent = 'New Note';
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-content').value = '';
+            document.getElementById('note-tags').value = '';
+            document.getElementById('note-color').value = '#667eea';
+            document.getElementById('note-editor').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function cancelNoteEdit() {
+            editingNoteId = null;
+            document.getElementById('note-editor').style.display = 'none';
+        }
+
+        async function editNote(noteId) {
+            const note = allNotes.find(n => n.note_id === noteId);
+            if (!note) return;
+
+            editingNoteId = noteId;
+            document.getElementById('note-editor-title').textContent = 'Edit Note';
+            document.getElementById('note-title').value = note.title;
+            document.getElementById('note-content').value = note.content;
+            document.getElementById('note-tags').value = note.tags.join(', ');
+            document.getElementById('note-color').value = note.color;
+            document.getElementById('note-editor').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        async function saveNote() {
+            const title = document.getElementById('note-title').value.trim();
+            const content = document.getElementById('note-content').value.trim();
+            const tagsStr = document.getElementById('note-tags').value.trim();
+            const color = document.getElementById('note-color').value;
+
+            if (!title || !content) {
+                alert('Please fill in title and content');
+                return;
+            }
+
+            const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            try {
+                let response;
+                if (editingNoteId) {
+                    // Update existing note
+                    response = await fetch(`${API_BASE}/v1/learning/notes/${editingNoteId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, content, tags, color })
+                    });
+                } else {
+                    // Create new note
+                    response = await fetch(`${API_BASE}/v1/learning/notes`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, content, tags, color })
+                    });
+                }
+
+                if (response.ok) {
+                    cancelNoteEdit();
+                    loadNotes();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to save note');
+                }
+            } catch (error) {
+                alert('Failed to save note: ' + error.message);
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Are you sure you want to delete this note?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/learning/notes/${noteId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadNotes();
+                } else {
+                    alert('Failed to delete note');
+                }
+            } catch (error) {
+                alert('Failed to delete note: ' + error.message);
+            }
+        }
+
+        async function searchNotes() {
+            const query = document.getElementById('notes-search').value.trim().toLowerCase();
+            
+            if (!query) {
+                displayNotes(allNotes);
+                return;
+            }
+
+            const filtered = allNotes.filter(note => 
+                note.title.toLowerCase().includes(query) ||
+                note.content.toLowerCase().includes(query) ||
+                note.tags.some(tag => tag.toLowerCase().includes(query))
+            );
+
+            displayNotes(filtered);
+        }
+
+        // Progress Tracking
+        async function loadProgress() {
+            const container = document.getElementById('progress-stats');
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/learning/progress/summary`);
+                const progress = await response.json();
+
+                // Stats Grid
+                let html = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-value">${progress.total_documents_studied || 0}</div>
+                            <div class="stat-label">Documents Studied</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-value">${progress.total_quizzes_taken || 0}</div>
+                            <div class="stat-label">Quizzes Taken</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value">${Math.floor((progress.total_study_time || 0) / 60)}</div>
+                            <div class="stat-label">Study Hours</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔥</div>
+                            <div class="stat-value">${progress.current_streak || 0}</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 32px; margin-bottom: 16px;">🏆 Achievements</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+                `;
+
+                if (progress.achievements && progress.achievements.length > 0) {
+                    progress.achievements.forEach(achievement => {
+                        html += `
+                            <div class="achievement-card">
+                                <div style="font-size: 36px; margin-bottom: 8px;">${achievement.icon || '🏆'}</div>
+                                <h4 style="color: white; margin-bottom: 4px;">${achievement.name}</h4>
+                                <p style="color: rgba(255,255,255,0.9); font-size: 14px;">${achievement.description}</p>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 8px;">
+                                    Earned: ${new Date(achievement.earned_at).toLocaleDateString()}
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="empty-state">
+                            <div class="empty-icon">🏆</div>
+                            <h3>No achievements yet</h3>
+                            <p>Keep learning to unlock achievements!</p>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+
+                // Detailed Stats
+                if (progress.quiz_accuracy !== undefined) {
+                    html += `
+                        <h3 style="margin-top: 32px; margin-bottom: 16px;">📊 Detailed Statistics</h3>
+                        <div class="card" style="padding: 24px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div>
+                                    <div style="color: var(--text-light); font-size: 14px;">Quiz Accuracy</div>
+                                    <div style="font-size: 24px; font-weight: 600; color: var(--primary);">
+                                        ${(progress.quiz_accuracy * 100).toFixed(1)}%
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-light); font-size: 14px;">Avg Study Time</div>
+                                    <div style="font-size: 24px; font-weight: 600; color: var(--primary);">
+                                        ${Math.floor((progress.average_study_time || 0) / 60)}m
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-light); font-size: 14px;">Best Streak</div>
+                                    <div style="font-size: 24px; font-weight: 600; color: var(--primary);">
+                                        ${progress.best_streak || 0} days
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-light); font-size: 14px;">Total Sessions</div>
+                                    <div style="font-size: 24px; font-weight: 600; color: var(--primary);">
+                                        ${progress.total_sessions || 0}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Failed to load progress</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update switchTab to load data for new tabs
+        const originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            originalSwitchTab(tabName);
+            
+            // Load data when switching to specific tabs
+            if (tabName === 'notes') {
+                loadNotes();
+            } else if (tabName === 'progress') {
+                loadProgress();
+            }
+        };
+
+        // Load initial data
+        loadDocuments();
+
+        // Chat input - send on Enter (without Shift)
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
